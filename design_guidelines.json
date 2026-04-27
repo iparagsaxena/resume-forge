@@ -1,0 +1,101 @@
+{
+  "theme": "light",
+  "archetype": "4_swiss_high_contrast",
+  "design_philosophy": "Authority, clarity, and function-first. The design must feel like a precision tool for career advancement, not a generic SaaS. Sharp corners, high contrast borders, and objective typography. Avoid gradients entirely.",
+  "colors": {
+    "background": "bg-zinc-50",
+    "surface": "bg-white",
+    "text_primary": "text-zinc-950",
+    "text_secondary": "text-zinc-500",
+    "border": "border-zinc-200",
+    "primary": "bg-zinc-950",
+    "primary_hover": "hover:bg-zinc-800 hover:text-white",
+    "primary_text": "text-white",
+    "accent_success_bg": "bg-emerald-50",
+    "accent_success_text": "text-emerald-700",
+    "accent_success_border": "border-emerald-200",
+    "accent_warning_bg": "bg-amber-50",
+    "accent_warning_text": "text-amber-700",
+    "accent_warning_border": "border-amber-200"
+  },
+  "typography": {
+    "font_heading": "'Chivo', sans-serif",
+    "font_body": "'IBM Plex Sans', sans-serif",
+    "font_mono": "'IBM Plex Mono', monospace",
+    "h1": "text-4xl sm:text-5xl lg:text-6xl font-black tracking-tighter text-zinc-950 leading-tight",
+    "h2": "text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-zinc-950",
+    "h3": "text-xl sm:text-2xl font-bold tracking-tight text-zinc-950",
+    "body": "text-base font-normal leading-relaxed text-zinc-600",
+    "small_label": "text-xs font-bold tracking-[0.1em] uppercase text-zinc-500"
+  },
+  "spacing_and_layout": {
+    "extension_popup": {
+      "dimensions": "w-[380px] h-[600px]",
+      "container": "relative flex flex-col h-full bg-white overflow-hidden text-zinc-950",
+      "header": "sticky top-0 z-50 flex items-center justify-between px-4 py-3 bg-white/90 backdrop-blur-xl border-b border-zinc-200",
+      "content": "flex-1 overflow-y-auto p-4 pb-28",
+      "footer_actions": "absolute bottom-0 left-0 w-full p-4 bg-zinc-50 border-t border-zinc-200 flex flex-col gap-2"
+    },
+    "web_dashboard": {
+      "container": "min-h-screen bg-zinc-50 text-zinc-950",
+      "grid_mode": "Control Room Grid (grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 or gap-6)",
+      "card": "bg-white border border-zinc-200 p-6 rounded-sm shadow-sm"
+    },
+    "general": {
+      "radius": "rounded-sm",
+      "border_style": "1px solid border-zinc-200"
+    }
+  },
+  "components": {
+    "buttons": {
+      "primary": "inline-flex items-center justify-center px-4 py-2.5 text-sm font-bold tracking-wide text-white transition-colors bg-zinc-950 rounded-sm hover:bg-zinc-800 focus:ring-2 focus:ring-zinc-950 focus:ring-offset-2 w-full sm:w-auto",
+      "secondary": "inline-flex items-center justify-center px-4 py-2.5 text-sm font-bold tracking-wide transition-colors bg-white border border-zinc-200 text-zinc-950 rounded-sm hover:bg-zinc-50 focus:ring-2 focus:ring-zinc-200 focus:ring-offset-2 w-full sm:w-auto"
+    },
+    "tags": {
+      "match": "inline-flex items-center px-2 py-1 text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-sm",
+      "missing": "inline-flex items-center px-2 py-1 text-xs font-bold text-zinc-500 bg-zinc-100 border border-zinc-200 rounded-sm line-through decoration-zinc-400"
+    },
+    "inputs": {
+      "default": "flex h-10 w-full rounded-sm border border-zinc-300 bg-white px-3 py-2 text-sm placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-950 focus:border-transparent transition-shadow"
+    },
+    "job_description_preview": "p-3 bg-zinc-50 border border-zinc-200 rounded-sm text-sm font-mono text-zinc-700 h-32 overflow-y-auto"
+  },
+  "media": {
+    "image_urls": [
+      {
+        "url": "https://images.unsplash.com/photo-1771970472811-6e85a47b1dcf?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1ODF8MHwxfHNlYXJjaHwzfHxtb2Rlcm4lMjBjb3Jwb3JhdGUlMjBvZmZpY2UlMjBza3lsaW5lfGVufDB8fHx8MTc3NzI3NjkxN3ww&ixlib=rb-4.1.0&q=85",
+        "description": "Modern buildings with glass facade against sky (Hero Image)",
+        "category": "hero_background"
+      },
+      {
+        "url": "https://images.pexels.com/photos/590044/pexels-photo-590044.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "description": "Top view of a desk with resume, coffee cup, and laptop",
+        "category": "dashboard_empty_state_or_feature_image"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1631651693480-97f1132e333d?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1OTN8MHwxfHNlYXJjaHwzfHxwcm9mZXNzaW9uYWwlMjByZXN1bWUlMjBkb2N1bWVudHMlMjBkZXNrfGVufDB8fHx8MTc3NzI3NjkzMXww&ixlib=rb-4.1.0&q=85",
+        "description": "Wooden table topped with papers and a pen",
+        "category": "cover_letter_feature"
+      },
+      {
+        "url": "https://images.pexels.com/photos/9949426/pexels-photo-9949426.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "description": "Minimal Logo placeholder",
+        "category": "logo_placeholder"
+      }
+    ]
+  },
+  "accessibility_and_interactions": {
+    "hover_states": "All interactive elements MUST have visible hover states altering background and text color.",
+    "focus_states": "Visible focus rings (focus:ring-2 focus:ring-offset-2) required on all inputs and buttons.",
+    "data_testid": "MANDATORY on all interactive and key informational elements. Format: kebab-case, role-based. E.g., data-testid='generate-resume-button'."
+  },
+  "instructions_to_main_agent": [
+    "Load Google Fonts: 'Chivo' (weights: 400, 700, 900) and 'IBM Plex Sans' (weights: 400, 500, 600) + 'IBM Plex Mono'.",
+    "Avoid generic border-radius (like rounded-lg/xl/2xl). Use 'rounded-sm' or 'rounded-none' strictly for the Technical/Swiss Brutalist aesthetic.",
+    "For the Chrome extension view, ensure the parent container enforces w-[380px] h-[600px] explicitly. Use the defined 'extension_popup' layout variables to ensure the footer actions stick to the bottom.",
+    "Do NOT use any gradients. Rely on stark contrast, 1px solid borders, and sharp box shadows.",
+    "Customize Shadcn components to remove soft radii and soft shadows. Align them to the high-contrast, technical visual language.",
+    "Integrate Lucide React icons, but ensure they are sized proportionally (e.g., w-4 h-4 in buttons) and use stark colors.",
+    "Always apply data-testid to every button, link, list item, and major UI container."
+  ]
+}
