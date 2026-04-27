@@ -75,7 +75,13 @@ app.include_router(api_router)
 # CORS — allow frontend + Chrome extension origins
 frontend_url = os.environ.get("FRONTEND_URL", "http://localhost:3000")
 extra_origins = os.environ.get("CORS_ORIGINS", "").split(",") if os.environ.get("CORS_ORIGINS") else []
-origins = list({frontend_url, "http://localhost:3000", *extra_origins})
+origins = [
+    o.strip() for o in [frontend_url, "http://localhost:3000", *extra_origins]
+    if o and o.strip() and o.strip() != "*"
+]
+# de-duplicate while preserving order
+seen = set()
+origins = [o for o in origins if not (o in seen or seen.add(o))]
 
 app.add_middleware(
     CORSMiddleware,
