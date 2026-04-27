@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>ResumeForge</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Chivo:wght@400;700;900&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <div id="rf-app" class="rf-app" data-view="loading">
+      <!-- Header -->
+      <header class="rf-header">
+        <div class="rf-brand">
+          <span class="rf-brand-mark">RF</span>
+          <div class="rf-brand-text">
+            <span class="rf-brand-title">ResumeForge</span>
+            <span class="rf-eyebrow">BETA</span>
+          </div>
+        </div>
+        <div class="rf-session">
+          <span id="rf-user-label" class="rf-eyebrow rf-user-label">—</span>
+          <button
+            id="rf-logout-btn"
+            class="rf-ghost-btn"
+            data-testid="popup-logout-button"
+            title="Sign out"
+            style="display: none"
+          >
+            Sign out
+          </button>
+        </div>
+      </header>
+
+      <!-- Loading -->
+      <section id="rf-view-loading" class="rf-view" style="display: none">
+        <div class="rf-empty">
+          <div class="rf-spinner"></div>
+          <p class="rf-muted">Booting ResumeForge…</p>
+        </div>
+      </section>
+
+      <!-- Auth -->
+      <section id="rf-view-auth" class="rf-view" style="display: none">
+        <p class="rf-eyebrow">Sign in</p>
+        <h1 class="rf-heading">Welcome back.</h1>
+        <p class="rf-muted">Use your ResumeForge web account.</p>
+        <form id="rf-login-form" class="rf-form" data-testid="popup-login-form">
+          <label class="rf-field">
+            <span class="rf-eyebrow">Email</span>
+            <input
+              type="email"
+              id="rf-login-email"
+              required
+              data-testid="popup-email-input"
+              placeholder="you@example.com"
+            />
+          </label>
+          <label class="rf-field">
+            <span class="rf-eyebrow">Password</span>
+            <input
+              type="password"
+              id="rf-login-password"
+              required
+              data-testid="popup-password-input"
+              placeholder="••••••••"
+            />
+          </label>
+          <button
+            type="submit"
+            class="rf-primary-btn"
+            id="rf-login-submit"
+            data-testid="popup-login-submit"
+          >
+            Sign in
+          </button>
+          <p id="rf-login-error" class="rf-error" style="display: none"></p>
+        </form>
+        <p class="rf-footnote">
+          No account?
+          <a id="rf-open-register" href="#" data-testid="popup-open-register">Create one on the web</a>
+        </p>
+      </section>
+
+      <!-- Main / Scan -->
+      <section id="rf-view-main" class="rf-view" style="display: none">
+        <div class="rf-page-meta" id="rf-page-meta"></div>
+        <div class="rf-actions-row">
+          <button
+            id="rf-scan-btn"
+            class="rf-primary-btn"
+            data-testid="popup-scan-button"
+          >
+            Scan this page for JD
+          </button>
+        </div>
+        <div id="rf-jd-preview-wrap" style="display: none" class="rf-stack">
+          <div class="rf-field-row">
+            <label class="rf-field">
+              <span class="rf-eyebrow">Job title</span>
+              <input
+                id="rf-jd-title"
+                type="text"
+                data-testid="popup-jd-title"
+                placeholder="Senior Designer"
+              />
+            </label>
+            <label class="rf-field">
+              <span class="rf-eyebrow">Company</span>
+              <input
+                id="rf-jd-company"
+                type="text"
+                data-testid="popup-jd-company"
+                placeholder="Acme"
+              />
+            </label>
+          </div>
+          <label class="rf-field">
+            <span class="rf-eyebrow">Job description</span>
+            <textarea
+              id="rf-jd-text"
+              data-testid="popup-jd-text"
+              placeholder="Paste or scan the JD here…"
+            ></textarea>
+          </label>
+          <button
+            id="rf-analyze-btn"
+            class="rf-primary-btn"
+            data-testid="popup-analyze-button"
+          >
+            Analyze &amp; save
+          </button>
+        </div>
+        <p id="rf-main-status" class="rf-muted rf-status-line"></p>
+      </section>
+
+      <!-- Result -->
+      <section id="rf-view-result" class="rf-view" style="display: none">
+        <button class="rf-back-link" id="rf-back-main" data-testid="popup-back-to-main">
+          ← Back
+        </button>
+        <div class="rf-match-row">
+          <div>
+            <p class="rf-eyebrow">Match score</p>
+            <p class="rf-score" id="rf-score">0%</p>
+          </div>
+          <div class="rf-role-meta">
+            <p class="rf-role-title" id="rf-role-title">Role</p>
+            <p class="rf-role-company" id="rf-role-company"></p>
+          </div>
+        </div>
+        <div class="rf-chip-group">
+          <p class="rf-eyebrow">Covered on resume</p>
+          <div id="rf-chips-present" class="rf-chips"></div>
+        </div>
+        <div class="rf-chip-group">
+          <p class="rf-eyebrow">Missing keywords</p>
+          <div id="rf-chips-missing" class="rf-chips"></div>
+        </div>
+        <div class="rf-chip-group">
+          <p class="rf-eyebrow">ATS keywords</p>
+          <div id="rf-chips-all" class="rf-chips"></div>
+        </div>
+        <p id="rf-result-status" class="rf-muted rf-status-line"></p>
+      </section>
+
+      <!-- Footer actions -->
+      <footer id="rf-footer" class="rf-footer" style="display: none">
+        <button
+          id="rf-gen-resume"
+          class="rf-primary-btn"
+          data-testid="popup-generate-resume"
+        >
+          Generate resume
+        </button>
+        <button
+          id="rf-gen-cover"
+          class="rf-secondary-btn"
+          data-testid="popup-generate-cover"
+        >
+          Cover letter
+        </button>
+        <a
+          id="rf-open-dashboard"
+          class="rf-ghost-btn-link"
+          href="#"
+          data-testid="popup-open-dashboard"
+          >Open dashboard →</a
+        >
+      </footer>
+    </div>
+    <script src="popup.js"></script>
+  </body>
+</html>
