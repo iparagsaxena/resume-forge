@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from fastapi.responses import StreamingResponse
 import io
 
-from models import AnalyzeRequest, GenerateRequest, JobRecord
+from models import AnalyzeRequest, GenerateRequest, JobRecord, QuickCoverLetterRequest
 from gemini_service import (
     analyze_job_description,
     generate_cover_letter,
@@ -126,6 +126,51 @@ async def generate_cover_letter_route(
     return await _generate_and_store(
         db, user["id"], job_id, "cover_letter", payload.tone or "professional", payload.extra_notes or ""
     )
+
+
+@router.post("/quick-cover-letter")
+async def quick_cover_letter(
+    payload: QuickCoverLetterRequest, request: Request, user: dict = Depends(current_user)
+):
+    """Generate a cover letter from a JD in a single call, skipping JD analysis.
+
+    Still persists a minimal job record + document so it shows up in the dashboard
+    history and can be re-downloaded later.
+    """
+    db = request.app.state.db
+    profile = await _get_profile(db, user["id"])
+    if not profile.get("base_resume_text"):
+        raise HTTPException(
+            status_code=400,
+            detail="Upload your base resume in Profile before generating documents.",
+        )
+    job_id = str(uuid.uuid4())
+    job_doc = {
+        "id": job_id,
+        "user_id": user["id"],
+        "job_title": (payload.job_title or "").strip(),
+        "company": (payload.company or "").strip(),
+        "source_url": (payload.source_url or "").strip(),
+        "source_site": (payload.source_site or "quick").strip(),
+        "job_description": payload.job_description.strip(),
+        "analysis": None,
+        "created_at": _now(),
+    }
+    await db.jobs.insert_one(job_doc)
+    content = await generate_cover_letter(
+        profile, job_doc, payload.tone or "professional", payload.extra_notes or ""
+    )
+    doc = {
+        "id": str(uuid.uuid4()),
+        "user_id": user["id"],
+        "job_id": job_id,
+        "doc_type": "cover_letter",
+        "content": content,
+        "created_at": _now(),
+    }
+    await db.documents.insert_one(doc)
+    doc.pop("_id", None)
+    return {"job_id": job_id, "document": doc}
 
 
 @router.get("/documents/{doc_id}/pdf")

@@ -28,6 +28,7 @@
         jdCompany: document.getElementById("rf-jd-company"),
         jdText: document.getElementById("rf-jd-text"),
         analyzeBtn: document.getElementById("rf-analyze-btn"),
+        quickCoverBtn: document.getElementById("rf-quick-cover-btn"),
         mainStatus: document.getElementById("rf-main-status"),
 
         backMain: document.getElementById("rf-back-main"),
@@ -180,8 +181,53 @@
         }
     };
 
-    const runAnalyze = async () => {
+    const runQuickCoverLetter = async () => {
         const jd = els.jdText.value.trim();
+        if (jd.length < 30) {
+            setStatus(els.mainStatus, "Please paste at least 30 characters of JD.", "error");
+            return;
+        }
+        els.quickCoverBtn.disabled = true;
+        els.analyzeBtn.disabled = true;
+        const originalLabel = els.quickCoverBtn.textContent;
+        els.quickCoverBtn.textContent = "Generating…";
+        setStatus(els.mainStatus, "Writing your cover letter with Gemini…");
+        try {
+            const payload = {
+                job_description: jd,
+                job_title: els.jdTitle.value.trim(),
+                company: els.jdCompany.value.trim(),
+                source_url: state.activeTab?.url || "",
+                source_site: detectSource(state.activeTab?.url || ""),
+                tone: "professional",
+                extra_notes: "",
+            };
+            const result = await api("/jobs/quick-cover-letter", { method: "POST", body: payload });
+            // Persist a "currentJob" so the existing PDF helper can name the file.
+            state.currentJob = {
+                id: result.job_id,
+                company: payload.company,
+                job_title: payload.job_title,
+            };
+            await downloadPdf(result.document.id, "cover_letter");
+            setStatus(els.mainStatus, "Cover letter generated · PDF downloaded.");
+        } catch (e) {
+            if (String(e.message).toLowerCase().includes("not authenticated")) {
+                state.token = null;
+                state.user = null;
+                await saveStorage();
+                show("auth");
+                return;
+            }
+            setStatus(els.mainStatus, `Failed: ${e.message}`, "error");
+        } finally {
+            els.quickCoverBtn.disabled = false;
+            els.analyzeBtn.disabled = false;
+            els.quickCoverBtn.textContent = originalLabel;
+        }
+    };
+
+    const runAnalyze = async () => {        const jd = els.jdText.value.trim();
         if (jd.length < 30) {
             setStatus(els.mainStatus, "Please paste at least 30 characters of JD.", "error");
             return;
@@ -352,6 +398,7 @@
     els.logoutBtn.addEventListener("click", doLogout);
     els.scanBtn.addEventListener("click", runScan);
     els.analyzeBtn.addEventListener("click", runAnalyze);
+    els.quickCoverBtn.addEventListener("click", runQuickCoverLetter);
     els.backMain.addEventListener("click", () => show("main"));
     els.genResumeBtn.addEventListener("click", () => generateDoc("resume"));
     els.genCoverBtn.addEventListener("click", () => generateDoc("cover_letter"));

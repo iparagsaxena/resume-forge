@@ -109,6 +109,16 @@ class GenerateRequest(BaseModel):
     extra_notes: Optional[str] = ""
 
 
+class QuickCoverLetterRequest(BaseModel):
+    job_description: str = Field(min_length=20)
+    job_title: Optional[str] = ""
+    company: Optional[str] = ""
+    source_url: Optional[str] = ""
+    source_site: Optional[str] = ""
+    tone: Optional[str] = "professional"
+    extra_notes: Optional[str] = ""
+
+
 class GeneratedDocument(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=_uuid)
