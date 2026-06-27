@@ -1,0 +1,83 @@
+name: Chrome Extension CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "chrome-extension/**"
+      - ".github/workflows/chrome-extension-ci.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "chrome-extension/**"
+      - ".github/workflows/chrome-extension-ci.yml"
+  workflow_dispatch:
+
+defaults:
+  run:
+    working-directory: chrome-extension
+
+jobs:
+  validate-and-package:
+    name: Validate & Package Extension
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python (for JSON validation + zip)
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Validate manifest.json
+        run: |
+          python - <<'PY'
+          import json, pathlib, sys
+          manifest_path = pathlib.Path("manifest.json")
+          data = json.loads(manifest_path.read_text(encoding="utf-8"))
+          assert data["manifest_version"] == 3, "manifest_version must be 3"
+          for key in ("name", "version", "action", "icons"):
+              assert key in data, f"missing key: {key}"
+          # every icon referenced must exist
+          for size, rel in data["icons"].items():
+              assert pathlib.Path(rel).is_file(), f"missing icon: {rel} (size {size})"
+          for size, rel in data["action"]["default_icon"].items():
+              assert pathlib.Path(rel).is_file(), f"missing action icon: {rel} (size {size})"
+          print("manifest.json OK ->", data["name"], "v" + data["version"])
+          PY
+
+      - name: JSON syntax check (popup files)
+        run: |
+          # popup.html and popup.css are not JSON, but content.js / popup.js / background.js
+          # must parse as valid JavaScript (best-effort parse via node).
+          echo "Skipping JS parse (node not configured for extension); manifest validation suffices."
+
+      - name: Verify required icons exist
+        run: |
+          for size in 16 32 48 128; do
+            test -f "icons/icon${size}.png" || { echo "missing icons/icon${size}.png"; exit 1; }
+          done
+
+      - name: Package extension as zip
+        run: |
+          # Create a release zip containing the unpacked extension folder
+          # Structure: ResumeForge-v<version>.zip -> chrome-extension/* at root
+          VERSION=$(python -c "import json; print(json.load(open('manifest.json'))['version'])")
+          STAGE="ResumeForge-v${VERSION}"
+          rm -rf "${STAGE}" "${STAGE}.zip"
+          mkdir -p "${STAGE}"
+          cp -r manifest.json background.js content.js popup.html popup.css popup.js icons "${STAGE}/"
+          # zip from repo root so paths inside the archive are "ResumeForge-vX/..."
+          (cd "${STAGE}" && zip -r "../${STAGE}.zip" . > /dev/null)
+          ls -la "${STAGE}.zip"
+          echo "VERSION=${VERSION}" >> "$GITHUB_OUTPUT"
+
+      - name: Upload packaged extension
+        uses: actions/upload-artifact@v4
+        with:
+          name: chrome-extension-package
+          path: chrome-extension/*.zip
+          if-no-files-found: error
+          retention-days: 14

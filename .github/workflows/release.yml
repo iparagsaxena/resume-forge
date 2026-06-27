@@ -1,0 +1,73 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to release (e.g. v0.1.0)"
+        required: true
+        default: "v0.1.0"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build & Publish Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve tag
+        id: tag
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            TAG="${GITHUB_REF#refs/tags/}"
+          else
+            TAG="${{ inputs.tag }}"
+          fi
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: yarn
+          cache-dependency-path: frontend/yarn.lock
+
+      - name: Build frontend
+        working-directory: frontend
+        run: |
+          yarn install --frozen-lockfile
+          yarn build
+
+      - name: Package Chrome extension
+        working-directory: chrome-extension
+        run: |
+          VERSION=$(python -c "import json; print(json.load(open('manifest.json'))['version'])")
+          STAGE="ResumeForge-v${VERSION}"
+          rm -rf "${STAGE}" "${STAGE}.zip"
+          mkdir -p "${STAGE}"
+          cp -r manifest.json background.js content.js popup.html popup.css popup.js icons "${STAGE}/"
+          (cd "${STAGE}" && zip -r "../${STAGE}.zip" . > /dev/null)
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          name: ResumeForge ${{ steps.tag.outputs.tag }}
+          generate_release_notes: true
+          files: |
+            chrome-extension/*.zip
+            frontend/build/index.html
