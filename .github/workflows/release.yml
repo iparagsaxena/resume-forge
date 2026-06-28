@@ -43,13 +43,19 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "22"
-          cache: yarn
+          # Only enable yarn cache when a lockfile exists; otherwise the cache
+          # step hard-fails with "Some specified paths were not resolved".
+          cache: ${{ hashFiles('frontend/yarn.lock') != '' && 'yarn' || '' }}
           cache-dependency-path: frontend/yarn.lock
 
       - name: Build frontend
         working-directory: frontend
         run: |
-          yarn install --frozen-lockfile
+          if [ -f yarn.lock ]; then
+            yarn install --frozen-lockfile --non-interactive
+          else
+            yarn install --non-interactive
+          fi
           yarn build
 
       - name: Package Chrome extension

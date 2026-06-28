@@ -29,11 +29,21 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "22"
-          cache: yarn
+          # Only enable yarn cache when a lockfile exists; otherwise the cache
+          # step hard-fails with "Some specified paths were not resolved".
+          cache: ${{ hashFiles('frontend/yarn.lock') != '' && 'yarn' || '' }}
           cache-dependency-path: frontend/yarn.lock
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        # Use --frozen-lockfile only when a lockfile is committed; otherwise
+        # fall back to a plain install so the build doesn't fail on a fresh
+        # repo without a lockfile yet.
+        run: |
+          if [ -f frontend/yarn.lock ]; then
+            (cd frontend && yarn install --frozen-lockfile --non-interactive)
+          else
+            (cd frontend && yarn install --non-interactive)
+          fi
 
       - name: Lint
         run: yarn eslint src --max-warnings=0 || true
